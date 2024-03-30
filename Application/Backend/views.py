@@ -16,8 +16,8 @@ def welcome():
     return render_template("app.html")
 
 
-@views.route('/getData', methods=['POST', 'GET'])
-def checkuser():
+@views.route('/getReviews', methods=['POST', 'GET'])
+def getReviews():
     if request.method == "POST":
         movieName=request.form.get('movieName')
         query = "Rotten Tomatoes "+movieName
@@ -35,30 +35,24 @@ def checkuser():
         driver = webdriver.Chrome(service=s, options =chrome_options)
         driver.get('{}/reviews'.format(movie_url))
         reviews = driver.find_elements(By.CLASS_NAME, 'review-text')
-        reviews_list = 'summarize: '
-        if(len(reviews)==0):
-            return "Sorry! Movie not found."
+        reviewsList = []
+        reviewsAggregate = ''
         for p in range(len(reviews)):
-            reviews_list+=reviews[p].text
-            reviews_list+='\n'
+            reviewsList.append(reviews[p].text)
+            reviewsAggregate+=reviews[p].text
+            reviewsAggregate+='\n'
+        return {"status":200, "reviewsAggregate":reviewsAggregate, "reviewsList":reviewsList, "numOfReviews":len(reviewsList)}
+    
+@views.route('/getSummary', methods=['POST', 'GET'])
+def getSummary():
+    if request.method == "POST":
+        reviewsAggregate = request.form.get('reviewsAggregate')
         HF_API_URL = "https://api-inference.huggingface.co/models/abhiramd22/t5-base-finetuned-to-summarize-movie-reviews"
         if(os.environ.get('HF_API_URL')!=None):
             HF_API_URL=os.environ.get('HF_API_URL')
-        hf_token=os.environ.get('hf_token')
-        # hf_token="Bearer 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"
-        headers = {"Authorization": hf_token}
-
+        headers = {"Authorization": os.environ.get('hf_token')}
         def query(payload):
             response = requests.post(HF_API_URL, headers=headers, json=payload)
             return response.json()
-
-        while (1):
-            global output
-            output = query({
-                "inputs": reviews_list
-            })
-            if('estimated_time' in output):
-                time.sleep(output['estimated_time'])
-            else:
-                break
-        return output[0]['summary_text']
+        output = query({ "inputs": 'summarize: '+reviewsAggregate })
+        return output

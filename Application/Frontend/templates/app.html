@@ -20,36 +20,17 @@
 	<link rel="shortcut icon" href="static/images/favicon.png" type="" />
 </head>
 
-<div class="area">
-	<ul class="circles">
-		<li></li>
-		<li></li>
-		<li></li>
-		<li></li>
-		<li></li>
-		<li></li>
-		<li></li>
-		<li></li>
-		<li></li>
-		<li></li>
-	</ul>
-</div>
+<div class="area"><ul class="circles"><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ul></div>
 
 <body style="text-align: center; margin: auto;">
-	<!-- <div class="navbar-expand-lg navbar-light bg-light" style="text-align: center">
-		<div class="container-fluid">
-			<p class="navbar-brand" href="#" style="font-weight: bold;">Movie Reviews Summarization</p>
-		</div>
-	</div> -->
-
 	<nav class="navbar navbar-light bg-light">
 		<div class="container-fluid" style="justify-content: center;">
-			<span class="navbar-brand mb-0 h1" style="font-weight: bold;">Movie Reviews Summarization</span>
+			<span class="navbar-brand mb-0 h1" >Movie Reviews Summarization</span>
 		</div>
 	</nav>
 	<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
 		<div class="box">
-			<p style="font-weight: bold;">Enter a Movie Name</p>
+			<p >Enter a Movie Name</p>
 			<div class="divider"></div>
 			<div class="form-group" style="max-width: 400px; text-align: center; display: flex;
 			justify-content: center;">
@@ -67,10 +48,10 @@
 					<span class="sr-only">Loading...</span></button>
 			</div>
 		</div>
-		</br>
+		<br>
 		<div style="background-color: white; width:60%; max-width: 800px; overflow-wrap: break-word; border-radius: 20px; border:3px solid black; padding: 20px; display: none;"
 			class="box" id="result-para">
-			<p style="font-weight: bold;">Summary</p>
+			<p >Summary</p>
 			<div class="divider"></div>
 			<p id="result">
 			</p>
@@ -81,193 +62,65 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
 <script>
+	async function setRemainingTime(seconds) {
+		seconds = seconds - 2
+		$("#result-para").show();
+		while (seconds) {
+			$("#result").text("Please wait. The model is loading. Summary will be generated in approximately " + seconds + " seconds.");
+			seconds--;
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+		}
+		$("#result").text("Summary loading...");
+	}
+
+	function fetchSummary(reviewsAggregate) {
+		$.ajax({
+			type: "POST",
+			url: "/getSummary",
+			data: { reviewsAggregate: reviewsAggregate },
+			success: function (data) {
+				if ('estimated_time' in data) {
+					setRemainingTime(Math.round(data['estimated_time']));
+					setTimeout(function () {
+						fetchSummary(reviewsAggregate)
+					}, data['estimated_time'] * 1000);
+				}
+				else {
+					$("#submit").show();
+					$("#submit-rotate").hide();
+					$("#result").text(data[0]['summary_text']);
+					$("#result-para").show();
+				}
+			},
+		});
+
+
+	}
 	$("#submit").on("click", function () {
-		// $("#spinner").show();
 		$("#submit").hide();
 		$("#submit-rotate").show();
-		$("#result-para").hide();
-
+		$("#result-para").show();
+		$("#result").text("Fetching Movie Reviews...");
 
 		var movieName = $("#movie_name").val();
 		$.ajax({
 			type: "POST",
-			url: "/getData",
-            timeout: 90000,
+			url: "/getReviews",
 			data: { movieName: movieName },
 			success: function (data) {
-				$("#result").text(data);
-				$("#submit").show();
-				$("#submit-rotate").hide();
-				$("#result-para").show();
+				if (data['numOfReviews'] == 0) {
+					$("#result").text("Sorry! Movie not found.");
+					$("#submit").show();
+					$("#submit-rotate").hide();
+					$("#result-para").show();
+				}
+				else {
+					$("#result").text("Analyzing Movie Reviews...");
+					fetchSummary(data["reviewsAggregate"])
+				}
 			},
 		});
 	});
 </script>
-<style>
-	.box {
-		border: 1px solid black;
-		border-radius: 10px;
-		margin: 10px;
-		padding: 10px;
-		background-color: white;
-		box-shadow: 10px 10px 10px 10px rgba(0, 0, 0, 0.2);
-	}
-
-	.box:hover .divider {
-		margin-left: auto;
-		margin-right: auto;
-		animation-name: dividerani;
-		animation-duration: 1s;
-		border-top: 2px solid #4E54C8;
-	}
-
-	@keyframes dividerani {
-		from {
-			width: 0%;
-		}
-
-		to {
-			width: 100%;
-		}
-	}
-
-	.divider {
-		border-top: 2px dashed #4E54C8;
-		margin-bottom: 15px;
-	}
-
-	.btn {
-		border: 2px solid #4E54C8;
-		color: #4E54C8;
-		border-radius: 10px;
-		background-color: #8f94fb1e;
-		text-align: center;
-	}
-
-	.btn:hover {
-		color: white;
-		background-color: #4E54C8;
-	}
-</style>
-<!-- Background CSS -->
-<style>
-	.area {
-		position: fixed;
-		z-index: -100;
-		background: #4e54c8;
-		background: -webkit-linear-gradient(to left, #8f94fb, #4e54c8);
-		width: 100%;
-		height: 100vh;
-	}
-
-	.circles {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		overflow: hidden;
-	}
-
-	.circles li {
-		position: absolute;
-		display: block;
-		list-style: none;
-		width: 20px;
-		height: 20px;
-		background: rgba(255, 255, 255, 0.2);
-		animation: animate 25s linear infinite;
-		bottom: -150px;
-	}
-
-	.circles li:nth-child(1) {
-		left: 25%;
-		width: 80px;
-		height: 80px;
-		animation-delay: 0s;
-	}
-
-	.circles li:nth-child(2) {
-		left: 10%;
-		width: 20px;
-		height: 20px;
-		animation-delay: 2s;
-		animation-duration: 12s;
-	}
-
-	.circles li:nth-child(3) {
-		left: 70%;
-		width: 20px;
-		height: 20px;
-		animation-delay: 4s;
-	}
-
-	.circles li:nth-child(4) {
-		left: 40%;
-		width: 60px;
-		height: 60px;
-		animation-delay: 0s;
-		animation-duration: 18s;
-	}
-
-	.circles li:nth-child(5) {
-		left: 65%;
-		width: 20px;
-		height: 20px;
-		animation-delay: 0s;
-	}
-
-	.circles li:nth-child(6) {
-		left: 75%;
-		width: 110px;
-		height: 110px;
-		animation-delay: 3s;
-	}
-
-	.circles li:nth-child(7) {
-		left: 35%;
-		width: 150px;
-		height: 150px;
-		animation-delay: 7s;
-	}
-
-	.circles li:nth-child(8) {
-		left: 50%;
-		width: 25px;
-		height: 25px;
-		animation-delay: 15s;
-		animation-duration: 45s;
-	}
-
-	.circles li:nth-child(9) {
-		left: 20%;
-		width: 15px;
-		height: 15px;
-		animation-delay: 2s;
-		animation-duration: 35s;
-	}
-
-	.circles li:nth-child(10) {
-		left: 85%;
-		width: 150px;
-		height: 150px;
-		animation-delay: 0s;
-		animation-duration: 11s;
-	}
-
-	@keyframes animate {
-		0% {
-			transform: translateY(0) rotate(0deg);
-			opacity: 1;
-			border-radius: 0;
-		}
-
-		100% {
-			transform: translateY(-1000px) rotate(720deg);
-			opacity: 0;
-			border-radius: 50%;
-		}
-	}
-</style>
 
 </html>
