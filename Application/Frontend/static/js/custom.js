@@ -13,7 +13,7 @@ async function setRemainingTime(seconds, movie_url, movieName) {
         seconds--;
         await new Promise((resolve) => setTimeout(resolve, 1000));
     }
-    $("#result").append("Summary loading...");
+    $("#result").append("\nSummary loading...");
 }
 
 function fetchSummary(reviewsAggregate, movie_url, movieName) {
