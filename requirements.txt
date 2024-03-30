@@ -1,0 +1,5 @@
+Flask==2.0.2
+google==3.0.0
+Requests==2.31.0
+selenium==4.19.0
+webdriver_manager==4.0.1
