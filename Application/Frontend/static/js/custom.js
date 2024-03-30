@@ -1,6 +1,5 @@
 async function setRemainingTime(seconds, movie_url, movieName) {
     seconds = seconds - 3
-    before_value = $("#result-para").text()
     while (seconds) {
         $("#result").text(`Searching for "Rotten Tomatoes ${movieName}"`);
         $("#result").append("\nMovie URL Found: ");
@@ -32,19 +31,23 @@ function fetchSummary(reviewsAggregate, movie_url, movieName) {
                 $("#submit").show();
                 $("#submit-rotate").hide();
                 $("#result").text(data[0]['summary_text']);
-                $("#result-para").show();
             }
         },
     });
 
 
 }
+
+$("#movie_name").keyup(function(event) {
+    if (event.keyCode === 13)
+        $("#submit").click();
+});
+
 $("#submit").on("click", function () {
     $("#submit").hide();
     $("#submit-rotate").show();
-    $("#result-para").show();
-
     var movieName = $("#movie_name").val();
+    $("#result-para").show();
     $("#result").text(`Searching for "Rotten Tomatoes ${movieName}"`);
     $.ajax({
         type: "POST",
@@ -52,8 +55,6 @@ $("#submit").on("click", function () {
         data: { movieName: movieName },
         success: function (data) {
             movie_url = data["movie_url"]
-            var html = $(`<a href='${movie_url}'>${movie_url}</a>`);
-
             $("#result").append("\nMovie URL Found: ");
             var $p = $("<a>").attr("href", movie_url)
                 .attr("target", "_blank")
@@ -69,7 +70,6 @@ $("#submit").on("click", function () {
                         $("#result").append("\nSorry! Reviews not found.");
                         $("#submit").show();
                         $("#submit-rotate").hide();
-                        $("#result-para").show();
                     }
                     else {
                         $("#result").append("\nAnalyzing Movie Reviews...");
