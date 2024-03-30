@@ -23,7 +23,15 @@ def checkuser():
         query = "Rotten Tomatoes "+movieName
         movie_url=next(search(query, tld="co.in", num=1, stop=1, pause=2))
         s=Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=s)
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--no-sandbox")
+        if(os.environ.get("isheroku")!=None):
+            chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+            driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options =chrome_options)
+        else:
+            driver = webdriver.Chrome(service=s, options =chrome_options)
         driver.get('{}/reviews'.format(movie_url))
         reviews = driver.find_elements(By.CLASS_NAME, 'review-text')
         reviews_list = 'summarize: '
