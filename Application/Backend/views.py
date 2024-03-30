@@ -15,13 +15,17 @@ views = Blueprint('views',__name__)
 def welcome():
     return render_template("app.html")
 
-
-@views.route('/getReviews', methods=['POST', 'GET'])
-def getReviews():
+@views.route('/getMovieURL', methods=['POST'])
+def getMovieURL():
     if request.method == "POST":
         movieName=request.form.get('movieName')
         query = "Rotten Tomatoes "+movieName
-        movie_url=next(search(query, tld="co.in", num=1, stop=1, pause=2))
+        return {"movie_url":next(search(query, tld="co.in", num=1, stop=1, pause=2))}
+
+@views.route('/getReviews', methods=['POST'])
+def getReviews():
+    if request.method == "POST":
+        movie_url=request.form.get('movie_url')
         s=Service(ChromeDriverManager().install())
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--headless")
@@ -43,7 +47,7 @@ def getReviews():
             reviewsAggregate+='\n'
         return {"status":200, "reviewsAggregate":reviewsAggregate, "reviewsList":reviewsList, "numOfReviews":len(reviewsList)}
     
-@views.route('/getSummary', methods=['POST', 'GET'])
+@views.route('/getSummary', methods=['POST'])
 def getSummary():
     if request.method == "POST":
         reviewsAggregate = request.form.get('reviewsAggregate')

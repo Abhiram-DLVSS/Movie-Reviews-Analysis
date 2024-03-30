@@ -5,18 +5,10 @@
 	<meta charset="utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-	<meta name="keywords" content="" />
-	<meta name="description" content="" />
-	<meta name="author" content="" />
 	<link rel="shortcut icon" href="static/images/favicon.png" type="" />
 	<title>Movie Reviews</title>
 	<link rel="stylesheet" type="text/css" href="static/css/bootstrap.css" />
-	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet" />
-	<link rel="stylesheet" type="text/css"
-		href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
-	<link href="static/css/font-awesome.min.css" rel="stylesheet" />
 	<link href="static/css/style.css" rel="stylesheet" />
-	<link href="static/css/responsive.css" rel="stylesheet" />
 	<link rel="shortcut icon" href="static/images/favicon.png" type="" />
 </head>
 
@@ -65,76 +57,14 @@
 		<br>
 		<div style="background-color: white; width:60%; max-width: 800px; overflow-wrap: break-word; border-radius: 20px; border:3px solid black; padding: 20px; display: none;"
 			class="box" id="result-para">
-			<p style="font-weight: bold;">Summary</p>
+			<p style="font-weight: bold; ">Summary</p>
 			<div class="divider"></div>
-			<p id="result">
-			</p>
+			<p id="result" style="white-space: pre-line;"></p>
 		</div>
 	</div>
 
 </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-
-<script>
-	async function setRemainingTime(seconds) {
-		seconds = seconds - 2
-		$("#result-para").show();
-		while (seconds) {
-			$("#result").text("Please wait. The model is loading. Summary will be generated in approximately " + seconds + " seconds.");
-			seconds--;
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-		}
-		$("#result").text("Summary loading...");
-	}
-
-	function fetchSummary(reviewsAggregate) {
-		$.ajax({
-			type: "POST",
-			url: "/getSummary",
-			data: { reviewsAggregate: reviewsAggregate },
-			success: function (data) {
-				if ('estimated_time' in data) {
-					setRemainingTime(Math.round(data['estimated_time']));
-					setTimeout(function () {
-						fetchSummary(reviewsAggregate)
-					}, data['estimated_time'] * 1000);
-				}
-				else {
-					$("#submit").show();
-					$("#submit-rotate").hide();
-					$("#result").text(data[0]['summary_text']);
-					$("#result-para").show();
-				}
-			},
-		});
-
-
-	}
-	$("#submit").on("click", function () {
-		$("#submit").hide();
-		$("#submit-rotate").show();
-		$("#result-para").show();
-		$("#result").text("Fetching Movie Reviews...");
-
-		var movieName = $("#movie_name").val();
-		$.ajax({
-			type: "POST",
-			url: "/getReviews",
-			data: { movieName: movieName },
-			success: function (data) {
-				if (data['numOfReviews'] == 0) {
-					$("#result").text("Sorry! Movie not found.");
-					$("#submit").show();
-					$("#submit-rotate").hide();
-					$("#result-para").show();
-				}
-				else {
-					$("#result").text("Analyzing Movie Reviews...");
-					fetchSummary(data["reviewsAggregate"])
-				}
-			},
-		});
-	});
-</script>
+<script src="static/js/custom.js"></script>
 
 </html>
