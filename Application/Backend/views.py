@@ -7,9 +7,28 @@ from selenium.webdriver.chrome.service import Service
 import requests
 import os
 import time
-
+import yaml
+from threading import Thread
 views = Blueprint('views',__name__)
 
+
+
+HF_SUMM_MODEL = "https://api-inference.huggingface.co/models/abhiramd22/t5-base-finetuned-to-summarize-movie-reviews"
+if(os.environ.get('HF_SUMM_MODEL')!=None):
+    HF_SUMM_MODEL=os.environ.get('HF_SUMM_MODEL')
+
+HF_SA_MODEL = "https://api-inference.huggingface.co/models/abhiramd22/finetuning-sentiment-model-mpnet-imdb"
+if(os.environ.get('HF_SA_MODEL')!=None):
+    HF_SA_MODEL=os.environ.get('HF_SA_MODEL')
+
+
+def loadModels():
+    headers = {"Authorization": os.environ.get('hf_token')}
+    def query(model, payload):
+        response = requests.post(model, headers=headers, json=payload)
+        return response.json()
+    query(HF_SA_MODEL, { "inputs":list(['start']) })
+    query(HF_SUMM_MODEL, { "inputs": 'summarize: start'})
 
 @views.route('/')
 def welcome():
@@ -18,6 +37,7 @@ def welcome():
 @views.route('/getMovieURL', methods=['POST'])
 def getMovieURL():
     if request.method == "POST":
+        Thread(target=loadModels).start()
         movieName=request.form.get('movieName')
         query = "Rotten Tomatoes "+movieName
         return {"movie_url":next(search(query, tld="co.in", num=1, stop=1, pause=2))}
@@ -37,7 +57,7 @@ def getReviews():
         else:
             s=Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=s, options =chrome_options)
-        driver.get('{}/reviews'.format(movie_url))
+        driver.get('{}/reviews?type=top_critics'.format(movie_url))
         reviews = driver.find_elements(By.CLASS_NAME, 'review-text')
         reviewsList = []
         reviewsAggregate = ''
@@ -45,18 +65,28 @@ def getReviews():
             reviewsList.append(reviews[p].text)
             reviewsAggregate+=reviews[p].text
             reviewsAggregate+='\n'
+        # reviewsList=sorted(reviewsList,key=lambda x: len(x))
+
         return {"status":200, "reviewsAggregate":reviewsAggregate, "reviewsList":reviewsList, "numOfReviews":len(reviewsList)}
     
 @views.route('/getSummary', methods=['POST'])
 def getSummary():
     if request.method == "POST":
         reviewsAggregate = request.form.get('reviewsAggregate')
-        HF_API_URL = "https://api-inference.huggingface.co/models/abhiramd22/t5-base-finetuned-to-summarize-movie-reviews"
-        if(os.environ.get('HF_API_URL')!=None):
-            HF_API_URL=os.environ.get('HF_API_URL')
         headers = {"Authorization": os.environ.get('hf_token')}
         def query(payload):
-            response = requests.post(HF_API_URL, headers=headers, json=payload)
+            response = requests.post(HF_SUMM_MODEL, headers=headers, json=payload)
             return response.json()
         output = query({ "inputs": 'summarize: '+reviewsAggregate })
+        return output
+
+@views.route('/getSentimentAnalysis', methods=['POST'])
+def getSentimentAnalysis():
+    if request.method == "POST":
+        reviewsList = yaml.full_load(request.form.get('reviewsList'))
+        headers = {"Authorization": os.environ.get('hf_token')}
+        def query(payload):
+            response = requests.post(HF_SA_MODEL, headers=headers, json=payload)
+            return response.json()
+        output = query({ "inputs":list(reviewsList) })
         return output

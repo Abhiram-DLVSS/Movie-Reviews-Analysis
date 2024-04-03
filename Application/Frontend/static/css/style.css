@@ -165,3 +165,23 @@
     border-radius: 50%;
   }
 }
+
+.pos-review {
+  background-color: #d3f8d3;
+  width: 80%;
+  max-width: 500px;
+  border-radius: 20px;
+  border: 2px dashed #005a00;
+  padding: 20px;
+  height: fit-content;
+}
+
+.neg-review {
+  background-color: #ffc8c9;
+  width: 80%;
+  max-width: 500px;
+  border-radius: 20px;
+  border: 2px dashed #7d0000;
+  padding: 20px;
+  height: fit-content;
+}

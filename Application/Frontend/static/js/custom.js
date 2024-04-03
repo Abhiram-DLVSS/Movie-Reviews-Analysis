@@ -38,7 +38,41 @@ function fetchSummary(reviewsAggregate, movie_url, movieName) {
 
 }
 
-$("#movie_name").keyup(function(event) {
+function sentimentAnalysis(reviewsList, movie_url, movieName) {
+    $.ajax({
+        type: "POST",
+        url: "/getSentimentAnalysis",
+        data: {reviewsList: JSON.stringify(reviewsList)},
+        success: function (data) {
+            if ('estimated_time' in data) {
+                setTimeout(function () {
+                    sentimentAnalysis(reviewsList, movie_url, movieName)
+                }, data['estimated_time'] * 1000);
+            }
+            else {
+                for (i in data) {
+                    box_class_name_prefix = null
+                    if (data[i][0]['label'] == 'POSITIVE')
+                        box_class_name_prefix = 'pos'
+                    else
+                        box_class_name_prefix = 'neg'
+
+                    $(`<div class="${box_class_name_prefix}-review box" data-bs-toggle="tooltip" data-bs-placement="top" title="Accuracy: ${data[i][0]['score']*100}">${reviewsList[i]}</div>`).appendTo('#reviews-boxes-div');
+                }
+                $("#reviews-parent-div").show();
+            }
+        },
+    });
+
+
+}
+
+
+$(document).ready(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip();
+});
+
+$("#movie_name").keyup(function (event) {
     if (event.keyCode === 13)
         $("#submit").click();
 });
@@ -49,6 +83,8 @@ $("#submit").on("click", function () {
     var movieName = $("#movie_name").val();
     $("#result-para").show();
     $("#result").text(`Searching for "Rotten Tomatoes ${movieName}"`);
+    $("#reviews-parent-div").hide();
+    $("#reviews-boxes-div").html("");
     $.ajax({
         type: "POST",
         url: "/getMovieURL",
@@ -73,6 +109,7 @@ $("#submit").on("click", function () {
                     }
                     else {
                         $("#result").append("\nAnalyzing Movie Reviews...");
+                        sentimentAnalysis(data["reviewsList"], movie_url, movieName)
                         fetchSummary(data["reviewsAggregate"], movie_url, movieName)
                     }
                 },
