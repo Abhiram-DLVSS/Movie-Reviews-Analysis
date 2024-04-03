@@ -27,12 +27,24 @@ function fetchSummary(reviewsAggregate, movie_url, movieName) {
                     fetchSummary(reviewsAggregate, movie_url, movieName)
                 }, data['estimated_time'] * 1000);
             }
+            else if ('error' in data) {
+                $("#submit").show();
+                $("#submit-rotate").hide();
+                $("#result").text(`Error: ${data['error']}`);
+            }
             else {
                 $("#submit").show();
                 $("#submit-rotate").hide();
                 $("#result").text(data[0]['summary_text']);
             }
         },
+        error: function(){
+            setRemainingTime(Math.round(5), movie_url, movieName);
+                setTimeout(function () {
+                    fetchSummary(reviewsAggregate, movie_url, movieName)
+                }, 5000);
+        },
+        timeout: 4000
     });
 
 
@@ -42,12 +54,16 @@ function sentimentAnalysis(reviewsList, movie_url, movieName) {
     $.ajax({
         type: "POST",
         url: "/getSentimentAnalysis",
-        data: {reviewsList: JSON.stringify(reviewsList)},
+        data: { reviewsList: JSON.stringify(reviewsList) },
         success: function (data) {
             if ('estimated_time' in data) {
                 setTimeout(function () {
                     sentimentAnalysis(reviewsList, movie_url, movieName)
                 }, data['estimated_time'] * 1000);
+            }
+            else if ('error' in data) {
+                $("#reviews-boxes-div").text(`Error: ${data['error']}`);
+                $("#reviews-parent-div").show();
             }
             else {
                 for (i in data) {
@@ -62,6 +78,12 @@ function sentimentAnalysis(reviewsList, movie_url, movieName) {
                 $("#reviews-parent-div").show();
             }
         },
+        error: function(){
+            setTimeout(function () {
+                sentimentAnalysis(reviewsList, movie_url, movieName)
+            }, 3000);
+        },
+        timeout: 5000
     });
 
 

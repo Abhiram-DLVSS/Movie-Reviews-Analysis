@@ -8,7 +8,6 @@ import requests
 import os
 import time
 import yaml
-from threading import Thread
 views = Blueprint('views',__name__)
 
 
@@ -21,15 +20,6 @@ HF_SA_MODEL = "https://api-inference.huggingface.co/models/abhiramd22/finetuning
 if(os.environ.get('HF_SA_MODEL')!=None):
     HF_SA_MODEL=os.environ.get('HF_SA_MODEL')
 
-
-def loadModels():
-    headers = {"Authorization": os.environ.get('hf_token')}
-    def query(model, payload):
-        response = requests.post(model, headers=headers, json=payload)
-        return response.json()
-    query(HF_SA_MODEL, { "inputs":list(['start']) })
-    query(HF_SUMM_MODEL, { "inputs": 'summarize: start'})
-
 @views.route('/')
 def welcome():
     return render_template("app.html")
@@ -37,7 +27,6 @@ def welcome():
 @views.route('/getMovieURL', methods=['POST'])
 def getMovieURL():
     if request.method == "POST":
-        Thread(target=loadModels).start()
         movieName=request.form.get('movieName')
         query = "Rotten Tomatoes "+movieName
         return {"movie_url":next(search(query, tld="co.in", num=1, stop=1, pause=2))}
