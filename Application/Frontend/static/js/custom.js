@@ -38,11 +38,11 @@ function fetchSummary(reviewsAggregate, movie_url, movieName) {
                 $("#result").text(data[0]['summary_text']);
             }
         },
-        error: function(){
-            setRemainingTime(Math.round(5), movie_url, movieName);
-                setTimeout(function () {
-                    fetchSummary(reviewsAggregate, movie_url, movieName)
-                }, 5000);
+        error: function () {
+            setRemainingTime(Math.round(10), movie_url, movieName);
+            setTimeout(function () {
+                fetchSummary(reviewsAggregate, movie_url, movieName)
+            }, 10000);
         },
         timeout: 4000
     });
@@ -73,12 +73,12 @@ function sentimentAnalysis(reviewsList, movie_url, movieName) {
                     else
                         box_class_name_prefix = 'neg'
 
-                    $(`<div class="${box_class_name_prefix}-review box" data-bs-toggle="tooltip" data-bs-placement="top" title="Accuracy: ${data[i][0]['score']*100}">${reviewsList[i]}</div>`).appendTo('#reviews-boxes-div');
+                    $(`<div class="${box_class_name_prefix}-review box" data-bs-toggle="tooltip" data-bs-placement="top" title="Confidence: ${data[i][0]['score'] * 100}">${reviewsList[i]}</div>`).appendTo('#reviews-boxes-div');
                 }
                 $("#reviews-parent-div").show();
             }
         },
-        error: function(){
+        error: function () {
             setTimeout(function () {
                 sentimentAnalysis(reviewsList, movie_url, movieName)
             }, 3000);
@@ -114,9 +114,9 @@ $("#submit").on("click", function () {
         success: function (data) {
             movie_url = data["movie_url"]
             $("#result").append("\nMovie URL Found: ");
-            var $p = $("<a>").attr("href", movie_url)
+            var $p = $("<a>").attr("href", movie_url + '/reviews?type=top_critics')
                 .attr("target", "_blank")
-                .text(movie_url)
+                .text(movie_url + '/reviews?type=top_critics')
             $("#result").append($p);
             $("#result").append("\nFetching Movie Reviews...");
             $.ajax({
@@ -125,7 +125,9 @@ $("#submit").on("click", function () {
                 data: { movie_url: movie_url },
                 success: function (data) {
                     if (data['numOfReviews'] == 0) {
-                        $("#result").append("\nSorry! Reviews not found.");
+                        $("#result").append("\n<b>Sorry! Reviews not found.</b>");
+                        if (movie_url.includes('/tv/'))
+                            $("#result").append("\n<i>(Note: If you provided a TV series as input, please specify a particular season and try again.)</i>");
                         $("#submit").show();
                         $("#submit-rotate").hide();
                     }
