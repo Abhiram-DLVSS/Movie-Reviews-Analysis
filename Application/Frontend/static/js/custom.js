@@ -3,9 +3,9 @@ async function setRemainingTime(seconds, movie_url, movieName) {
     while (seconds) {
         $("#result").text(`Searching for "Rotten Tomatoes ${movieName}"`);
         $("#result").append("\nMovie URL Found: ");
-        var $p = $("<a>").attr("href", movie_url)
+        var $p = $("<a>").attr("href", movie_url + '/reviews?type=top_critics')
             .attr("target", "_blank")
-            .text(movie_url)
+            .text(movie_url + '/reviews?type=top_critics')
         $("#result").append($p);
         $("#result").append("\nFetching Movie Reviews...\nAnalyzing Movie Reviews...\n");
         $("#result").append("Please wait. The model is loading. Summary will be generated in approximately " + seconds + " seconds.");
@@ -67,6 +67,8 @@ function sentimentAnalysis(reviewsList, movie_url, movieName) {
             }
             else {
                 for (i in data) {
+                    if(reviewsList[i].trim().length==0)
+                        continue
                     box_class_name_prefix = null
                     if (data[i][0]['label'] == 'POSITIVE')
                         box_class_name_prefix = 'pos'
@@ -113,31 +115,48 @@ $("#submit").on("click", function () {
         data: { movieName: movieName },
         success: function (data) {
             movie_url = data["movie_url"]
-            $("#result").append("\nMovie URL Found: ");
-            var $p = $("<a>").attr("href", movie_url + '/reviews?type=top_critics')
-                .attr("target", "_blank")
-                .text(movie_url + '/reviews?type=top_critics')
-            $("#result").append($p);
-            $("#result").append("\nFetching Movie Reviews...");
-            $.ajax({
-                type: "POST",
-                url: "/getReviews",
-                data: { movie_url: movie_url },
-                success: function (data) {
-                    if (data['numOfReviews'] == 0) {
-                        $("#result").append("\n<b>Sorry! Reviews not found.</b>");
-                        if (movie_url.includes('/tv/'))
-                            $("#result").append("\n<i>(Note: If you provided a TV series as input, please specify a particular season and try again.)</i>");
-                        $("#submit").show();
-                        $("#submit-rotate").hide();
-                    }
-                    else {
-                        $("#result").append("\nAnalyzing Movie Reviews...");
-                        sentimentAnalysis(data["reviewsList"], movie_url, movieName)
-                        fetchSummary(data["reviewsAggregate"], movie_url, movieName)
-                    }
-                },
-            });
+            if(movie_url==''){
+                if(data["error"]=='HTTP Error 429: Too Many Requests'){
+                    $("#result").html("Google Search Rate Limit Exceeded. Please try again later.");
+                }
+                else{
+                    $("#result").html(`Error: "${data["error"]}". Please try again later.`);
+                }
+                $("#submit").show();
+                $("#submit-rotate").hide();
+            }
+            else if(movie_url=='https://www.rottentomatoes.com/'){
+                $("#result").html('<b>Sorry! Movie not found.</b>');
+                $("#submit").show();
+                $("#submit-rotate").hide();
+            }
+            else{
+                $("#result").append("\nMovie URL Found: ");
+                var $p = $("<a>").attr("href", movie_url + '/reviews?type=top_critics')
+                    .attr("target", "_blank")
+                    .text(movie_url + '/reviews?type=top_critics')
+                $("#result").append($p);
+                $("#result").append("\nFetching Movie Reviews...");
+                $.ajax({
+                    type: "POST",
+                    url: "/getReviews",
+                    data: { movie_url: movie_url },
+                    success: function (data) {
+                        if (data['numOfReviews'] == 0) {
+                            $("#result").append("\n<b>Sorry! Reviews not found.</b>");
+                            if (movie_url.includes('/tv/'))
+                                $("#result").append(`\n<i>(Note: If you provided a TV series as input, please specify a particular season and try again. Example: <b>${movieName} s1</b>)</i>`);
+                            $("#submit").show();
+                            $("#submit-rotate").hide();
+                        }
+                        else {
+                            $("#result").append("\nAnalyzing Movie Reviews...");
+                            sentimentAnalysis(data["reviewsList"], movie_url, movieName)
+                            fetchSummary(data["reviewsAggregate"], movie_url, movieName)
+                        }
+                    },
+                });
+            }
         },
     });
 });

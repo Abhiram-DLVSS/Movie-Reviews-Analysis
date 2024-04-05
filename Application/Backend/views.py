@@ -29,7 +29,13 @@ def getMovieURL():
     if request.method == "POST":
         movieName=request.form.get('movieName')
         query = "Rotten Tomatoes "+movieName
-        return {"movie_url":next(search(query, tld="co.in", num=1, stop=1, pause=2))}
+        movieurl=""
+        error=""
+        try:
+            movieurl=next(search(query, num=1, stop=1, pause=2))
+        except Exception as e:
+            error=str(e)
+        return {"movie_url":movieurl, "error":error}
 
 @views.route('/getReviews', methods=['POST'])
 def getReviews():
