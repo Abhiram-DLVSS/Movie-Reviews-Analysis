@@ -1,79 +1,68 @@
 <!DOCTYPE html>
 <html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+		<link rel="shortcut icon" href="static/images/favicon.png" type="" />
+		<title>Movie Reviews Summarization and Sentiment Analysis</title>
+		<link rel="stylesheet" type="text/css" href="static/css/bootstrap.css" />
+		<link href="static/css/style.css" rel="stylesheet" />
+		<link href="static/css/bg.css" rel="stylesheet" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js" defer></script>
+		<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"defer></script>
+		<script src="static/js/custom.js" defer></script>
+	</head>
 
-<head>
-	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-	<link rel="shortcut icon" href="static/images/favicon.png" type="" />
-	<title>Movie Reviews Summarization and Sentiment Analysis</title>
-	<link rel="stylesheet" type="text/css" href="static/css/bootstrap.css" />
-	<link href="static/css/style.css" rel="stylesheet" />
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js" defer></script>
-	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"defer></script>
-	<script src="static/js/custom.js" defer></script>
-
-</head>
-
-<div class="area">
-	<ul class="circles">
-		<li></li>
-		<li></li>
-		<li></li>
-		<li></li>
-		<li></li>
-		<li></li>
-		<li></li>
-		<li></li>
-		<li></li>
-		<li></li>
-	</ul>
-</div>
-
-<body style="text-align: center; margin: auto;">
-	<nav class="navbar navbar-light bg-light">
-		<div class="container-fluid" style="justify-content: center;">
-			<span class="navbar-brand mb-0 h1">Movie Reviews Analysis</span>
-		</div>
-	</nav>
-	<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-		<div class="box">
-			<p style="font-weight: bold;">Enter a Movie Name</p>
-			<div class=" divider">
-			</div>
-			<div class="form-group" style="max-width: 400px; text-align: center; display: flex;
-			justify-content: center;">
-				<label for="movie_name" class="sr-only">Movie Name</label>
-				<input class="form-control" id="movie_name" name="movie_name" style="text-align: center;" />
-			</div>
-
-			<div>
-				<button id="submit" class="btn">
-					Go!</button>
-				<button id="submit-rotate" class="btn" style="display: none">
-
-					<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"
-						style="padding: 10px;"></span>
-					<span class="sr-only">Loading...</span></button>
-			</div>
-		</div>
-		<br>
-		<div style="background-color: white; width:60%; max-width: 800px; overflow-wrap: break-word; border-radius: 20px; border:3px solid black; padding: 20px; display: none;"
-			class="box" id="result-para">
-			<p style="font-weight: bold; ">Summary</p>
-			<div class="divider"></div>
-			<p id="result" style="white-space: pre-line;"></p>
-		</div>
-		<br>
-		<div style="background-color: white; width:90%;  border-radius: 20px; border:3px solid black; padding: 20px; display: none;"
-			class="box" id="reviews-parent-div">
-			<p style="font-weight: bold; ">Reviews Sentiment Analysis</p>
-			<div class="divider"></div>
-			<div class='grid' id="reviews-boxes-div">
-			</div>
-		</div>
+	<div class="area">
+		<ul class="circles">
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+		</ul>
 	</div>
 
-</body>
+	<body style="text-align: center; margin: auto;">
+		<nav class="navbar navbar-light bg-light">
+			<div class="container-fluid" style="justify-content: center;">
+				<span class="navbar-brand mb-0 h1">Movie Reviews Analysis</span>
+			</div>
+		</nav>
+		<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+			<div class="box">
+				<p style="font-weight: bold;">Enter a Movie Name</p>
+				<div class=" divider"></div>
+				<div class="form-group" style="max-width: 400px; text-align: center; display: flex; justify-content: center;">
+					<label for="movie_name" class="sr-only">Movie Name</label>
+					<input class="form-control" id="movie_name" name="movie_name" style="text-align: center;" />
+				</div>
 
+				<div>
+					<button id="submit" class="btn">Go!</button>
+					<button id="submit-rotate" class="btn" style="display: none">
+					<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true" style="padding: 10px;"></span>
+					<span class="sr-only">Loading...</span></button>
+				</div>
+			</div>
+			<br>
+			<div class="box" id="result-para">
+				<p style="font-weight: bold; ">Summary</p>
+				<div class="divider"></div>
+				<p id="result" style="white-space: pre-line;"></p>
+			</div>
+			<br>
+			<div class="box" id="reviews-parent-div">
+				<p style="font-weight: bold; ">Reviews Sentiment Analysis</p>
+				<div class="divider"></div>
+				<div class='grid' id="reviews-boxes-div"></div>
+			</div>
+		</div>
+	</body>
 </html>

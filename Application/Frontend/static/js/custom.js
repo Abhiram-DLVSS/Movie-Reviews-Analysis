@@ -75,7 +75,7 @@ function sentimentAnalysis(reviewsList, movie_url, movieName) {
                     else
                         box_class_name_prefix = 'neg'
 
-                    $(`<div class="${box_class_name_prefix}-review box" data-bs-toggle="tooltip" data-bs-placement="top" title="Confidence: ${data[i][0]['score'] * 100}">${reviewsList[i]}</div>`).appendTo('#reviews-boxes-div');
+                    $(`<div class="${box_class_name_prefix}-review box" title="Confidence: ${data[i][0]['score'] * 100}">${reviewsList[i]}</div>`).appendTo('#reviews-boxes-div');
                 }
                 $("#reviews-parent-div").show();
             }
@@ -90,11 +90,6 @@ function sentimentAnalysis(reviewsList, movie_url, movieName) {
 
 
 }
-
-
-$(document).ready(function () {
-    $('[data-bs-toggle="tooltip"]').tooltip();
-});
 
 $("#movie_name").keyup(function (event) {
     if (event.keyCode === 13)
