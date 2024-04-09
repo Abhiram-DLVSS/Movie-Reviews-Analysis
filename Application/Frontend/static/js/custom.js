@@ -1,3 +1,17 @@
+
+
+function hideSubmit(){
+    $("#submit").hide();
+    $("#submit-rotate").show();
+    $("#movie_name").prop('disabled', true);
+}
+
+function showSubmit(){
+    $("#submit").show();
+    $("#submit-rotate").hide();
+    $("#movie_name").prop('disabled', false);
+}
+
 async function setRemainingTime(seconds, movie_url, movieName) {
     seconds = seconds - 3
     while (seconds) {
@@ -28,13 +42,11 @@ function fetchSummary(reviewsAggregate, movie_url, movieName) {
                 }, data['estimated_time'] * 1000);
             }
             else if ('error' in data) {
-                $("#submit").show();
-                $("#submit-rotate").hide();
+                showSubmit();
                 $("#result").text(`Error: ${data['error']}`);
             }
             else {
-                $("#submit").show();
-                $("#submit-rotate").hide();
+                showSubmit();
                 $("#result").text(data[0]['summary_text']);
             }
         },
@@ -75,7 +87,7 @@ function sentimentAnalysis(reviewsList, movie_url, movieName) {
                     else
                         box_class_name_prefix = 'neg'
 
-                    $(`<div class="${box_class_name_prefix}-review box" title="Confidence: ${data[i][0]['score'] * 100}">${reviewsList[i]}</div>`).appendTo('#reviews-boxes-div');
+                    $(`<div class="${box_class_name_prefix}-review"  title="Confidence: ${Math.round(data[i][0]['score'] * 100*100)/100}">${reviewsList[i]}</div>`).appendTo('#reviews-boxes-div');
                 }
                 $("#reviews-parent-div").show();
             }
@@ -97,8 +109,7 @@ $("#movie_name").keyup(function (event) {
 });
 
 $("#submit").on("click", function () {
-    $("#submit").hide();
-    $("#submit-rotate").show();
+    hideSubmit();
     var movieName = $("#movie_name").val();
     $("#result-para").show();
     $("#result").text(`Searching for "Rotten Tomatoes ${movieName}"`);
@@ -117,13 +128,11 @@ $("#submit").on("click", function () {
                 else{
                     $("#result").html(`Error: "${data["error"]}". Please try again later.`);
                 }
-                $("#submit").show();
-                $("#submit-rotate").hide();
+                showSubmit();
             }
             else if(movie_url=='https://www.rottentomatoes.com/'){
                 $("#result").html('<b>Sorry! Movie not found.</b>');
-                $("#submit").show();
-                $("#submit-rotate").hide();
+                showSubmit();
             }
             else{
                 $("#result").append("\nMovie URL Found: ");
@@ -141,8 +150,7 @@ $("#submit").on("click", function () {
                             $("#result").append("\n<b>Sorry! Reviews not found.</b>");
                             if (movie_url.includes('/tv/'))
                                 $("#result").append(`\n<i>(Note: If you provided a TV series as input, please specify a particular season and try again. Example: <b>${movieName} s1</b>)</i>`);
-                            $("#submit").show();
-                            $("#submit-rotate").hide();
+                                showSubmit();
                         }
                         else {
                             $("#result").append("\nAnalyzing Movie Reviews...");
