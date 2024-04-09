@@ -61,7 +61,7 @@ def getReviews():
             reviewsList.append(reviews[p].text)
             reviewsAggregate+=reviews[p].text
             reviewsAggregate+='\n'
-        # reviewsList=sorted(reviewsList,key=lambda x: len(x))
+        reviewsList=sorted(reviewsList,key=lambda x: -1*len(x))
 
         return {"status":200, "reviewsAggregate":reviewsAggregate, "reviewsList":reviewsList, "numOfReviews":len(reviewsList)}
     

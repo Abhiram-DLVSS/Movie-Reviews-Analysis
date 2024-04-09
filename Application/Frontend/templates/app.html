@@ -14,20 +14,7 @@
 		<script src="static/js/custom.js" defer></script>
 	</head>
 
-	<div class="area">
-		<ul class="circles">
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-			<li></li>
-		</ul>
-	</div>
+	<div class="area"><ul class="circles"><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ul></div>
 
 	<body style="text-align: center; margin: auto;">
 		<nav class="navbar navbar-light bg-light">
@@ -36,6 +23,7 @@
 			</div>
 		</nav>
 		<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+			<!-- Input -->
 			<div class="box">
 				<p style="font-weight: bold;">Enter a Movie Name</p>
 				<div class=" divider"></div>
@@ -52,12 +40,14 @@
 				</div>
 			</div>
 			<br>
+			<!-- Summary -->
 			<div class="box" id="result-para">
 				<p style="font-weight: bold; ">Summary</p>
 				<div class="divider"></div>
 				<p id="result" style="white-space: pre-line;"></p>
 			</div>
 			<br>
+			<!-- Sentiment Analysis -->
 			<div class="box" id="reviews-parent-div">
 				<p style="font-weight: bold; ">Reviews Sentiment Analysis</p>
 				<div class="divider"></div>
