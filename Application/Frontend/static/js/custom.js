@@ -14,7 +14,7 @@ function showSubmit(){
 
 async function setRemainingTime(seconds, movie_url, movieName) {
     seconds = seconds - 3
-    while (seconds) {
+    while(seconds>=0){
         $("#result").text(`Searching for "Rotten Tomatoes ${movieName}"`);
         $("#result").append("\nMovie URL Found: ");
         var $p = $("<a>").attr("href", movie_url + '/reviews?type=top_critics')
@@ -22,11 +22,13 @@ async function setRemainingTime(seconds, movie_url, movieName) {
             .text(movie_url + '/reviews?type=top_critics')
         $("#result").append($p);
         $("#result").append("\nFetching Movie Reviews...\nAnalyzing Movie Reviews...\n");
-        $("#result").append("Please wait. The model is loading. Summary will be generated in approximately " + seconds + " seconds.");
+        if(seconds>=1)
+            $("#result").append("Please wait. The model is loading. Summary will be generated in approximately " + seconds + " seconds.");
+        else
+            $("#result").append("Summary loading...");
         seconds--;
         await new Promise((resolve) => setTimeout(resolve, 1000));
     }
-    $("#result").append("\nSummary loading...");
 }
 
 function fetchSummary(reviewsAggregate, movie_url, movieName) {
