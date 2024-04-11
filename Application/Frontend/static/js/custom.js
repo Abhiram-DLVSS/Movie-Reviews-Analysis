@@ -12,8 +12,7 @@ function showSubmit(){
     $("#movie_name").prop('disabled', false);
 }
 
-async function setRemainingTime(seconds, movie_url, movieName) {
-    seconds = seconds - 3
+async function setRemainingTime(seconds, movie_url, movieName, reviewsAggregate) {
     while(seconds>=0){
         $("#result").text(`Searching for "Rotten Tomatoes ${movieName}"`);
         $("#result").append("\nMovie URL Found: ");
@@ -29,6 +28,7 @@ async function setRemainingTime(seconds, movie_url, movieName) {
         seconds--;
         await new Promise((resolve) => setTimeout(resolve, 1000));
     }
+    fetchSummary(reviewsAggregate, movie_url, movieName);
 }
 
 function fetchSummary(reviewsAggregate, movie_url, movieName) {
@@ -38,10 +38,7 @@ function fetchSummary(reviewsAggregate, movie_url, movieName) {
         data: { reviewsAggregate: reviewsAggregate },
         success: function (data) {
             if ('estimated_time' in data) {
-                setRemainingTime(Math.round(data['estimated_time']), movie_url, movieName);
-                setTimeout(function () {
-                    fetchSummary(reviewsAggregate, movie_url, movieName)
-                }, data['estimated_time'] * 1000);
+                setRemainingTime(Math.round(data['estimated_time']), movie_url, movieName, reviewsAggregate);
             }
             else if ('error' in data) {
                 showSubmit();
@@ -53,10 +50,7 @@ function fetchSummary(reviewsAggregate, movie_url, movieName) {
             }
         },
         error: function () {
-            setRemainingTime(Math.round(10), movie_url, movieName);
-            setTimeout(function () {
-                fetchSummary(reviewsAggregate, movie_url, movieName)
-            }, 10000);
+            setRemainingTime(Math.round(10), movie_url, movieName, reviewsAggregate);
         },
         timeout: 4000
     });
