@@ -20,3 +20,9 @@ This is based on `t5-base` model, fine-tuned using a custom-built movie reviews 
 Model: [https://huggingface.co/abhiramd22/finetuning-sentiment-model-mpnet-imdb](https://huggingface.co/abhiramd22/finetuning-sentiment-model-mpnet-imdb)
 
 This is based on `all-mpnet-base-v2` model, fine-tuned using the IMDB movie reviews dataset.
+
+# Jupyter Notebooks
+
+The Jupyter Notebooks used to train & fine-tune the classification and summarization models used in the web application can be found at [/Jupyter_Notebooks](/Jupyter_Notebooks)
+
+The Input and Intermediate data used in these notebooks can be found at [https://github.com/Abhiram-DLVSS/Movie-Reviews-Analysis-Data](https://github.com/Abhiram-DLVSS/Movie-Reviews-Analysis-Data)
