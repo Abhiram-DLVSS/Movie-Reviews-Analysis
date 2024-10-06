@@ -131,6 +131,7 @@ $("#submit").on("click", function () {
                 showSubmit();
             }
             else{
+                $("#movieurl").attr('href',movie_url + '/reviews?type=top_critics');
                 $("#result").append("\nMovie URL Found: ");
                 var $p = $("<a>").attr("href", movie_url + '/reviews?type=top_critics')
                     .attr("target", "_blank")
