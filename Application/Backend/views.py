@@ -4,21 +4,27 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
-import requests
 import os
-import time
 import yaml
+from transformers import pipeline
+from functools import lru_cache
+
+
 views = Blueprint('views',__name__)
 
 
 
-HF_SUMM_MODEL = "https://api-inference.huggingface.co/models/abhiramd22/t5-base-finetuned-to-summarize-movie-reviews"
-if(os.environ.get('HF_SUMM_MODEL')!=None):
-    HF_SUMM_MODEL=os.environ.get('HF_SUMM_MODEL')
+summarization_pipe = pipeline("summarization", model="abhiramd22/t5-base-finetuned-to-summarize-movie-reviews")
 
-HF_SA_MODEL = "https://api-inference.huggingface.co/models/abhiramd22/finetuning-sentiment-model-mpnet-imdb"
-if(os.environ.get('HF_SA_MODEL')!=None):
-    HF_SA_MODEL=os.environ.get('HF_SA_MODEL')
+sentiment_pipe = pipeline("text-classification", model="abhiramd22/finetuning-sentiment-model-mpnet-imdb")
+
+@lru_cache(maxsize=128)
+def CacheSentimentAnalysis(reviewsList):
+    return sentiment_pipe(list(reviewsList))
+
+@lru_cache(maxsize=128)
+def CacheSummarization(reviewsAggregate):
+    return summarization_pipe(reviewsAggregate)
 
 @views.route('/')
 def welcome():
@@ -70,21 +76,17 @@ def getReviews():
 @views.route('/getSummary', methods=['POST'])
 def getSummary():
     if request.method == "POST":
-        reviewsAggregate = request.form.get('reviewsAggregate')
-        headers = {"Authorization": os.environ.get('hf_token')}
-        def query(payload):
-            response = requests.post(HF_SUMM_MODEL, headers=headers, json=payload)
-            return response.json()
-        output = query({ "inputs": 'summarize: '+reviewsAggregate })
-        return output
+        try:
+            reviewsAggregate = request.form.get('reviewsAggregate')
+            return CacheSummarization(reviewsAggregate) 
+        except Exception as e:
+            return {"error": str(e)}
 
 @views.route('/getSentimentAnalysis', methods=['POST'])
 def getSentimentAnalysis():
     if request.method == "POST":
-        reviewsList = yaml.full_load(request.form.get('reviewsList'))
-        headers = {"Authorization": os.environ.get('hf_token')}
-        def query(payload):
-            response = requests.post(HF_SA_MODEL, headers=headers, json=payload)
-            return response.json()
-        output = query({ "inputs":list(reviewsList) })
-        return output
+        try:
+            reviewsList = yaml.full_load(request.form.get('reviewsList'))
+            return CacheSentimentAnalysis(tuple(reviewsList)) 
+        except Exception as e:
+            return {"error": str(e)}

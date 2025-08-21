@@ -9,7 +9,7 @@ Screenshot:
 ## How it works
 1. Searches for `Rotten Tomatoes ${query}` on google and retrieves the URL of the top result.
 2. Scrapes the Rotten Tomatoes website for the top critic reviews using Selenium.
-3. Uses Hugging Face Inference API to generate the summary and perform the sentiment analysis of the movie reviews.
+3. Uses Hugging Face Inference API to generate the summary and perform the sentiment analysis of the movie reviews.(Hugging Face Inference API is now deprecated. So, performing inference locally.)
 
 ## Summarization Model
 Model: [https://huggingface.co/abhiramd22/t5-base-finetuned-to-summarize-movie-reviews](https://huggingface.co/abhiramd22/t5-base-finetuned-to-summarize-movie-reviews)

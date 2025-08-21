@@ -32,3 +32,8 @@ urllib3==2.2.1
 webdriver-manager==4.0.1
 Werkzeug==3.0.1
 wsproto==1.2.0
+transformers==4.55.3
+torch==2.8.0
+sentencepiece==0.2.1
+protobuf==6.32.0
+
