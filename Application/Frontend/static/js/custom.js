@@ -74,16 +74,17 @@ function sentimentAnalysis(reviewsList, movie_url, movieName) {
                 $("#reviews-parent-div").show();
             }
             else {
+                data = data[0];
                 for (i in data) {
                     if(reviewsList[i].trim().length==0)
                         continue
                     box_class_name_prefix = null
-                    if (data[i][0]['label'] == 'POSITIVE')
+                    if (data[i]['label'] == 'POSITIVE')
                         box_class_name_prefix = 'pos'
                     else
                         box_class_name_prefix = 'neg'
 
-                    $(`<div class="${box_class_name_prefix}-review"  title="Confidence: ${Math.round(data[i][0]['score'] * 100*100)/100}">${reviewsList[i]}</div>`).appendTo('#reviews-boxes-div');
+                    $(`<div class="${box_class_name_prefix}-review"  title="Confidence: ${Math.round(data[i]['score'] * 100*100)/100}%">${reviewsList[i]}</div>`).appendTo('#reviews-boxes-div');
                 }
                 $("#reviews-parent-div").show();
             }

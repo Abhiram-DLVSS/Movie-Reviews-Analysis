@@ -1,4 +1,4 @@
-from flask import Blueprint,render_template,request
+from flask import Blueprint,render_template,request, jsonify
 from googlesearch import search
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -12,11 +12,11 @@ views = Blueprint('views',__name__)
 
 
 
-HF_SUMM_MODEL = "https://api-inference.huggingface.co/models/abhiramd22/t5-base-finetuned-to-summarize-movie-reviews"
+HF_SUMM_MODEL = "https://router.huggingface.co/hf-inference/models/facebook/bart-large-cnn"
 if(os.environ.get('HF_SUMM_MODEL')!=None):
     HF_SUMM_MODEL=os.environ.get('HF_SUMM_MODEL')
 
-HF_SA_MODEL = "https://api-inference.huggingface.co/models/abhiramd22/finetuning-sentiment-model-mpnet-imdb"
+HF_SA_MODEL = "https://router.huggingface.co/hf-inference/models/distilbert/distilbert-base-uncased-finetuned-sst-2-english"
 if(os.environ.get('HF_SA_MODEL')!=None):
     HF_SA_MODEL=os.environ.get('HF_SA_MODEL')
 
@@ -75,8 +75,8 @@ def getSummary():
         def query(payload):
             response = requests.post(HF_SUMM_MODEL, headers=headers, json=payload)
             return response.json()
-        output = query({ "inputs": 'summarize: '+reviewsAggregate })
-        return output
+        output = query({ "inputs": 'summarize the movie based on the following reviews: '+reviewsAggregate })
+        return jsonify(output)
 
 @views.route('/getSentimentAnalysis', methods=['POST'])
 def getSentimentAnalysis():
@@ -87,4 +87,4 @@ def getSentimentAnalysis():
             response = requests.post(HF_SA_MODEL, headers=headers, json=payload)
             return response.json()
         output = query({ "inputs":list(reviewsList) })
-        return output
+        return jsonify(output)
