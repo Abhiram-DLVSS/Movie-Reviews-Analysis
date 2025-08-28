@@ -2,16 +2,29 @@ package com.example.moviereviewsanalysis;
 
 import com.example.moviereviewsanalysis.config.KeyConfig;
 import com.example.moviereviewsanalysis.config.ModelsConfig;
+import com.example.moviereviewsanalysis.dto.MovieReviews;
 import com.example.moviereviewsanalysis.dto.MovieUrl;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 import com.fasterxml.jackson.databind.JsonNode;
-// import com.fasterxml.jackson.databind.ObjectMapper;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 
 
 @SpringBootApplication
@@ -43,7 +56,7 @@ public class MoviereviewsanalysisApplication {
                 .bodyToMono(JsonNode.class)
                 .block();
 
-            if (jsonNode.has("items") && jsonNode.get("items").isArray() && jsonNode.get("items").size() > 0) {
+            if (jsonNode.has("items") && jsonNode.get("items").isArray() && !jsonNode.get("items").isEmpty()) {
                 movieurl = jsonNode.get("items").get(0).get("link").asText();
             }
             System.out.println("Extracted URL: " + movieurl);
@@ -57,18 +70,86 @@ public class MoviereviewsanalysisApplication {
     }
 
     @GetMapping("/getReviews")
-    public MovieUrl getReviews(@RequestParam("movieUrl") String movieUrl) {
-        return null;
+    public MovieReviews getReviews(@RequestParam("movieUrl") String movieUrl) {
+        WebDriverManager.chromedriver().setup();
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--no-sandbox");
+        options.addArguments("log-level=3");
+
+        WebDriver driver = new ChromeDriver(options);
+        try {
+            driver.get(movieUrl+"/reviews?type=top_critics");
+            List<WebElement> reviews = driver.findElements(By.className("review-text"));
+
+            List<String> reviewsList = new ArrayList<String>();
+            String reviewsAggregate = "";
+            for (WebElement review : reviews) {
+                reviewsList.add(review.getText());
+                reviewsAggregate+=review.getText();
+                reviewsAggregate+="\n";
+            }
+
+
+            return new MovieReviews(reviewsList, reviewsAggregate, reviewsList.size(), "");
+
+        }
+        catch (Exception e) {
+            String error = "Error retrieving movie URL: " + e.getMessage();
+            return new MovieReviews(new ArrayList<String>(0), "", 0, "");
+        }
+        finally {
+            driver.quit();
+        }
     }
 
-    @GetMapping("/getSummary")
-    public MovieUrl getSummary(@RequestParam("reviewsAggregate") String reviewsAggregate) {
-        return null;
+    @PostMapping("/getSummary")
+    public JsonNode getSummary(@RequestParam("reviewsAggregate") String reviewsAggregate) {
+        try{
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("inputs", "summarize: " + reviewsAggregate);
+            WebClient client = WebClient.create();
+            JsonNode jsonNode = client.post()
+                    .uri(modelsConfig.hfSummModel)
+                    .header("Authorization", keyConfig.hfApiKey)
+                     .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block();
+
+            return jsonNode;
+        } catch (Exception e) {
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode errorNode = mapper.createObjectNode();
+            errorNode.put("error", e.getMessage());
+            return errorNode;
+        }
+
     }
 
-    @GetMapping("/getSentimentAnalysis")
-    public MovieUrl getSentimentAnalysis(@RequestParam("reviewsList") String[] reviewsList) {
-        return null;
+    @PostMapping("/getSentimentAnalysis")
+    public JsonNode getSentimentAnalysis(@RequestParam("reviewsList") String[] reviewsList) {
+        try{
+            Map<String, String[]> requestBody = new HashMap<>();
+            requestBody.put("inputs", reviewsList);
+            WebClient client = WebClient.create();
+            JsonNode jsonNode = client.post()
+                    .uri(modelsConfig.hfSaModel)
+                    .header("Authorization", keyConfig.hfApiKey)
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block();
+
+            return jsonNode;
+        } catch (Exception e) {
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode errorNode = mapper.createObjectNode();
+            errorNode.put("error", e.getMessage());
+            return errorNode;
+        }
     }
 
 
