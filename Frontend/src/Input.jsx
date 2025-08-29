@@ -98,7 +98,7 @@ function Input({
     useEffect(() => {
         if (reviewsList.length > 0) {
             try {
-                fetch("${import.meta.env.VITE_BACKEND_HOST}/getSentimentAnalysis", {
+                fetch(`${import.meta.env.VITE_BACKEND_HOST}/getSentimentAnalysis`, {
                     method: "POST",
                     body: JSON.stringify({ reviewsList: reviewsList }),
                     headers: {
@@ -130,7 +130,7 @@ function Input({
         if (reviewsAggregate != "") {
             try {
                 setAnalyzingReviews(true);
-                fetch("${import.meta.env.VITE_BACKEND_HOST}/getSummary", {
+                fetch(`${import.meta.env.VITE_BACKEND_HOST}/getSummary`, {
                     method: "POST",
                     body: JSON.stringify({
                         reviewsAggregate: reviewsAggregate,
