@@ -20,7 +20,7 @@ function Input({
     const [processed, setProcessed] = useState(0);
     useEffect(() => {
         fetch(`${import.meta.env.VITE_BACKEND_HOST}/ping`);
-    });
+    },[]);
 
     useEffect(() => {
         if (loading === true) {
