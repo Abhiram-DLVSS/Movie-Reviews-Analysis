@@ -9,7 +9,11 @@ function App() {
     const [submit, setSubmit] = useState(false);
     const [summarizationMessage, setSummarizationMessage] = useState("");
     const [sentimentAnalysisList, setSentimentAnalysisList] = useState([]);
-    
+    const [searchMessage, setSearchMessage] = useState("");
+    const [movieUrl, setMovieUrl] = useState("");
+    const [fetchingReviews, setFetchingReviews] = useState(false);
+    const [summarizationLoading, setSummarizationLoading] = useState(false);
+
     const [reviewsList, setReviewsList] = useState([]);
     return (
         <>
@@ -42,17 +46,31 @@ function App() {
                     setSentimentAnalysisList={setSentimentAnalysisList}
                     reviewsList={reviewsList}
                     setReviewsList={setReviewsList}
+                    movieUrl={movieUrl}
+                    setMovieUrl={setMovieUrl}
+                    searchMessage={searchMessage}
+                    setSearchMessage={setSearchMessage}
+                    fetchingReviews={fetchingReviews}
+                    setFetchingReviews={setFetchingReviews}
+                    summarizationLoading={summarizationLoading}
+                    setSummarizationLoading={setSummarizationLoading}
                 />
                 {submit && (
                     <>
                         <Summarization
+                            searchMessage={searchMessage}
+                            movieUrl={movieUrl}
+                            fetchingReviews={fetchingReviews}
+                            summarizationLoading={summarizationLoading}
                             summarizationMessage={summarizationMessage}
                         />
 
-                        <SentimentAnalysis
-                            sentimentAnalysisList={sentimentAnalysisList}
-                            reviewsList={reviewsList}
-                        />
+                        {sentimentAnalysisList.length > 0 && (
+                            <SentimentAnalysis
+                                sentimentAnalysisList={sentimentAnalysisList}
+                                reviewsList={reviewsList}
+                            />
+                        )}
                     </>
                 )}
             </div>

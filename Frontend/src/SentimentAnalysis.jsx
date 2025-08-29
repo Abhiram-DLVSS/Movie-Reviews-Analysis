@@ -14,7 +14,6 @@ function SentimentAnalysis({ sentimentAnalysisList, reviewsList }) {
                 <div className="divider"></div>
                 <div className="grid" id="reviews-boxes-div">
                     {sentimentAnalysisList.map((review, i) => {
-                        console.log(review,i);
 
                         const label = review?.label;
                         const score = review?.score;
