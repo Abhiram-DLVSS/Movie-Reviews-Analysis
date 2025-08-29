@@ -4,6 +4,8 @@ import com.example.moviereviewsanalysis.config.KeyConfig;
 import com.example.moviereviewsanalysis.config.ModelsConfig;
 import com.example.moviereviewsanalysis.dto.MovieReviews;
 import com.example.moviereviewsanalysis.dto.MovieUrl;
+import com.example.moviereviewsanalysis.dto.SentimentAnalysisRequest;
+import com.example.moviereviewsanalysis.dto.SummarizationRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -18,10 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 
 
 @SpringBootApplication
@@ -91,12 +90,12 @@ public class MoviereviewsanalysisApplication {
             }
 
 
-            return new MovieReviews(reviewsList, reviewsAggregate, reviewsList.size(), "");
+            return new MovieReviews(reviewsList, reviewsAggregate, "");
 
         }
         catch (Exception e) {
             String error = "Error retrieving movie URL: " + e.getMessage();
-            return new MovieReviews(new ArrayList<String>(0), "", 0, "");
+            return new MovieReviews(new ArrayList<String>(0), "", error);
         }
         finally {
             driver.quit();
@@ -104,10 +103,10 @@ public class MoviereviewsanalysisApplication {
     }
 
     @PostMapping("/getSummary")
-    public JsonNode getSummary(@RequestParam("reviewsAggregate") String reviewsAggregate) {
+    public JsonNode getSummary(@RequestBody SummarizationRequest summarizationRequest) {
         try{
             Map<String, String> requestBody = new HashMap<>();
-            requestBody.put("inputs", "summarize: " + reviewsAggregate);
+            requestBody.put("inputs", "summarize: " + summarizationRequest.reviewsAggregate);
             WebClient client = WebClient.create();
             JsonNode jsonNode = client.post()
                     .uri(modelsConfig.hfSummModel)
@@ -128,10 +127,12 @@ public class MoviereviewsanalysisApplication {
     }
 
     @PostMapping("/getSentimentAnalysis")
-    public JsonNode getSentimentAnalysis(@RequestParam("reviewsList") String[] reviewsList) {
+    public JsonNode getSentimentAnalysis(@RequestBody SentimentAnalysisRequest sentimentAnalysisRequest) {
         try{
-            Map<String, String[]> requestBody = new HashMap<>();
-            requestBody.put("inputs", reviewsList);
+            Map<String, List<String>> requestBody = new HashMap<>();
+
+            requestBody.put("inputs", sentimentAnalysisRequest.reviewsList);
+//            System.out.println();
             WebClient client = WebClient.create();
             JsonNode jsonNode = client.post()
                     .uri(modelsConfig.hfSaModel)

@@ -5,13 +5,11 @@ import java.util.List;
 public class MovieReviews {
     private List<String> reviewsList;
     private String reviewsAggregate;
-    private Number numOfReviews;
     private String error;
 
-    public MovieReviews(List<String> reviewsList, String reviewsAggregate, Number numOfReviews, String error) {
+    public MovieReviews(List<String> reviewsList, String reviewsAggregate, String error) {
         this.reviewsList = reviewsList;
         this.reviewsAggregate = reviewsAggregate;
-        this.numOfReviews = numOfReviews;
         this.error = error;
     }
 
@@ -23,11 +21,6 @@ public class MovieReviews {
     public String getReviewsAggregate() {
         return reviewsAggregate;
     }
-
-    public Number getNumOfReviews() {
-        return numOfReviews;
-    }
-
     public String getError() {
         return error;
     }
@@ -40,11 +33,6 @@ public class MovieReviews {
     public void setReviewsAggregate() {
         this.reviewsAggregate = reviewsAggregate;
     }
-
-    public void setNumOfReviews() {
-        this.numOfReviews = numOfReviews;
-    }
-
 
     public void setError(String error) {
         this.error = error;
