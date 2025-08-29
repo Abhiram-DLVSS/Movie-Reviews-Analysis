@@ -18,11 +18,18 @@ function Input({
     const [movieName, setMovieName] = useState("");
     const [reviewsAggregate, setReviewsAggregate] = useState("");
     const [processed, setProcessed] = useState(0);
+    useEffect(() => {
+        fetch(`${import.meta.env.VITE_BACKEND_HOST}/ping`);
+    });
 
     useEffect(() => {
         if (loading === true) {
             setSearchMessage(`Searching for "Rotten Tomatoes ${movieName}"`);
-            fetch(`${import.meta.env.VITE_BACKEND_HOST}/getMovieURL?movieName=${movieName}`)
+            fetch(
+                `${
+                    import.meta.env.VITE_BACKEND_HOST
+                }/getMovieURL?movieName=${movieName}`
+            )
                 .then((response) => {
                     return response.json();
                 })
@@ -35,7 +42,8 @@ function Input({
                     } else throw new Error(data.error);
                 })
                 .catch((error) => {
-                    const errorMessage = "Error at getMovieURL: " + error.message;
+                    const errorMessage =
+                        "Error at getMovieURL: " + error.message;
                     alert(errorMessage);
                     setSummarizationMessage(errorMessage);
                     setProcessed(2);
@@ -62,7 +70,11 @@ function Input({
             setSummarizationMessage("<b>Sorry! Movie not found.</b>");
             setProcessed(2);
         } else {
-            fetch(`${import.meta.env.VITE_BACKEND_HOST}/getReviews?movieUrl=${movieUrl}`)
+            fetch(
+                `${
+                    import.meta.env.VITE_BACKEND_HOST
+                }/getReviews?movieUrl=${movieUrl}`
+            )
                 .then((response) => {
                     return response.json();
                 })
@@ -87,7 +99,8 @@ function Input({
                     } else throw new Error(data.error);
                 })
                 .catch((error) => {
-                    const errorMessage = "Error at getReviews: " + error.message;
+                    const errorMessage =
+                        "Error at getReviews: " + error.message;
                     alert(errorMessage);
                     setSummarizationMessage(errorMessage);
                     setProcessed(2);
@@ -98,13 +111,16 @@ function Input({
     useEffect(() => {
         if (reviewsList.length > 0) {
             try {
-                fetch(`${import.meta.env.VITE_BACKEND_HOST}/getSentimentAnalysis`, {
-                    method: "POST",
-                    body: JSON.stringify({ reviewsList: reviewsList }),
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                })
+                fetch(
+                    `${import.meta.env.VITE_BACKEND_HOST}/getSentimentAnalysis`,
+                    {
+                        method: "POST",
+                        body: JSON.stringify({ reviewsList: reviewsList }),
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
+                )
                     .then((res) => res.json())
                     .then((data) => {
                         setSentimentAnalysisList(data[0]);
@@ -117,7 +133,8 @@ function Input({
                     });
             } catch (err) {
                 {
-                    const errorMessage = "Error at getSentimentAnalysis: " + err.message;
+                    const errorMessage =
+                        "Error at getSentimentAnalysis: " + err.message;
                     alert(errorMessage);
                     setSummarizationMessage(errorMessage);
                     setProcessed(2);

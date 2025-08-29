@@ -38,6 +38,11 @@ public class MoviereviewsanalysisApplication {
 		SpringApplication.run(MoviereviewsanalysisApplication.class, args);
 	}
 
+    @GetMapping("/ping")
+    public String ping() {
+        return "ok";
+    }
+
     @GetMapping("/getMovieURL")
     public MovieUrl getMovieURL(@RequestParam("movieName") String movieName) {
         System.out.println("Received movie name: " + movieName);
