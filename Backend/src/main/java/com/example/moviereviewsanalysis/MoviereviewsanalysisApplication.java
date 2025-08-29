@@ -93,6 +93,7 @@ public class MoviereviewsanalysisApplication {
                 reviewsAggregate+=review.getText();
                 reviewsAggregate+="\n";
             }
+            Collections.sort(reviewsList, (s1, s2) -> s2.length()-s1.length());
 
 
             return new MovieReviews(reviewsList, reviewsAggregate, "");
