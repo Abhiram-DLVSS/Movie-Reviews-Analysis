@@ -25,7 +25,7 @@ import java.util.*;
 
 @SpringBootApplication
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class MoviereviewsanalysisApplication {
     private final ModelsConfig modelsConfig;
     private final KeyConfig keyConfig;
