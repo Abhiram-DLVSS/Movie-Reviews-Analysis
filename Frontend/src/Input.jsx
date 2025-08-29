@@ -22,7 +22,7 @@ function Input({
     useEffect(() => {
         if (loading === true) {
             setSearchMessage(`Searching for "Rotten Tomatoes ${movieName}"`);
-            fetch(`http://localhost:8080/getMovieURL?movieName=${movieName}`)
+            fetch(`${import.meta.env.VITE_BACKEND_HOST}/getMovieURL?movieName=${movieName}`)
                 .then((response) => {
                     return response.json();
                 })
@@ -62,7 +62,7 @@ function Input({
             setSummarizationMessage("<b>Sorry! Movie not found.</b>");
             setProcessed(2);
         } else {
-            fetch(`http://localhost:8080/getReviews?movieUrl=${movieUrl}`)
+            fetch(`${import.meta.env.VITE_BACKEND_HOST}/getReviews?movieUrl=${movieUrl}`)
                 .then((response) => {
                     return response.json();
                 })
@@ -98,7 +98,7 @@ function Input({
     useEffect(() => {
         if (reviewsList.length > 0) {
             try {
-                fetch("http://localhost:8080/getSentimentAnalysis", {
+                fetch("${import.meta.env.VITE_BACKEND_HOST}/getSentimentAnalysis", {
                     method: "POST",
                     body: JSON.stringify({ reviewsList: reviewsList }),
                     headers: {
@@ -130,7 +130,7 @@ function Input({
         if (reviewsAggregate != "") {
             try {
                 setAnalyzingReviews(true);
-                fetch("http://localhost:8080/getSummary", {
+                fetch("${import.meta.env.VITE_BACKEND_HOST}/getSummary", {
                     method: "POST",
                     body: JSON.stringify({
                         reviewsAggregate: reviewsAggregate,
