@@ -4,29 +4,22 @@ import "./css/style.css";
 function Input({
     loading,
     setLoading,
-    submit,
     setSubmit,
-    summarizationMessage,
     setSummarizationMessage,
-    sentimentAnalysisList,
     setSentimentAnalysisList,
     reviewsList,
     setReviewsList,
     movieUrl,
     setMovieUrl,
-    searchMessage,
     setSearchMessage,
-    fetchingReviews,
     setFetchingReviews,
-    summarizationLoading,
-    setSummarizationLoading,
+    setAnalyzingReviews
 }) {
     const [movieName, setMovieName] = useState("");
     const [reviewsAggregate, setReviewsAggregate] = useState("");
     const [processed, setProcessed] = useState(0);
 
     useEffect(() => {
-        //Fetch Movie URL
         if (loading === true) {
             setSearchMessage(`Searching for "Rotten Tomatoes ${movieName}"`);
             fetch(`http://localhost:8080/getMovieURL?movieName=${movieName}`)
@@ -35,17 +28,22 @@ function Input({
                 })
                 .then((data) => {
                     if (data.movieUrl == "") {
-                        setSummarizationMessage(
-                            "<b>Sorry! Movie not found.</b>"
-                        );
-                        setProcessed(2);
-                    } else if (data.movieUrl == movieUrl) {
+                        setSummarizationMessage("Sorry! Movie not found.");
                         setProcessed(2);
                     } else if (data.error == "") {
                         setMovieUrl(data.movieUrl);
-                    } else alert("Error:", data.error);
+                    } else throw new Error(data.error);
                 })
-                .catch((error) => alert("Error:", error));
+                .catch((error) => {
+                    const errorMessage = "Error at getMovieURL: " + error.message;
+                    alert(errorMessage);
+                    setSummarizationMessage(errorMessage);
+                    setProcessed(2);
+                });
+        } else {
+            setSearchMessage("");
+            setFetchingReviews(false);
+            setAnalyzingReviews(false);
         }
     }, [loading]);
 
@@ -60,7 +58,6 @@ function Input({
         //Fetch Movie Reviews
         if (movieUrl == "") return;
         setFetchingReviews(true);
-        console.log("Movie URL:", movieUrl);
         if (movieUrl == "https://www.rottentomatoes.com/") {
             setSummarizationMessage("<b>Sorry! Movie not found.</b>");
             setProcessed(2);
@@ -71,16 +68,29 @@ function Input({
                 })
                 .then((data) => {
                     if (data.error == "") {
-                        console.log("Reviews List:", data.reviewsList.length);
-                        setReviewsList(data.reviewsList);
-                        setReviewsAggregate(data.reviewsAggregate);
-                    } else alert("Error at getReviews: " + data.error);
+                        if (data.reviewsList.length == 0) {
+                            if (movieUrl.includes("/tv/")) {
+                                setSummarizationMessage(
+                                    `Sorry! Reviews not found.\n
+                                    Note: If you provided a TV series as input, please specify a particular season and try again. Example: ${movieName} s1`
+                                );
+                            } else
+                                setSummarizationMessage(
+                                    "Sorry! Reviews not found."
+                                );
+
+                            setProcessed(2);
+                        } else {
+                            setReviewsList(data.reviewsList);
+                            setReviewsAggregate(data.reviewsAggregate);
+                        }
+                    } else throw new Error(data.error);
                 })
-                .catch((error) =>
-                    alert("Error at getReviews: " + error.message)
-                )
-                .finally(() => {
-                    setFetchingReviews(false);
+                .catch((error) => {
+                    const errorMessage = "Error at getReviews: " + error.message;
+                    alert(errorMessage);
+                    setSummarizationMessage(errorMessage);
+                    setProcessed(2);
                 });
         }
     }, [movieUrl]);
@@ -100,13 +110,18 @@ function Input({
                         setSentimentAnalysisList(data[0]);
                     })
                     .catch((err) => {
-                        console.error(err);
+                        throw err;
                     })
                     .finally(() => {
                         setProcessed((processed) => processed + 1);
                     });
             } catch (err) {
-                console.error(err);
+                {
+                    const errorMessage = "Error at getSentimentAnalysis: " + err.message;
+                    alert(errorMessage);
+                    setSummarizationMessage(errorMessage);
+                    setProcessed(2);
+                }
             }
         }
     }, [reviewsList]);
@@ -114,6 +129,7 @@ function Input({
     useEffect(() => {
         if (reviewsAggregate != "") {
             try {
+                setAnalyzingReviews(true);
                 fetch("http://localhost:8080/getSummary", {
                     method: "POST",
                     body: JSON.stringify({
@@ -128,29 +144,29 @@ function Input({
                         setSummarizationMessage(data[0]["summary_text"]);
                     })
                     .catch((err) => {
-                        console.error(err);
+                        throw err;
                     })
                     .finally(() => {
                         setProcessed((processed) => processed + 1);
                     });
             } catch (err) {
-                console.error(err);
+                {
+                    const errorMessage = "Error at getSummary: " + err.message;
+                    alert(errorMessage);
+                    setSummarizationMessage(errorMessage);
+                    setProcessed(2);
+                }
             }
         }
     }, [reviewsAggregate]);
 
     const handleSubmit = () => {
-        setSummarizationMessage("");
-        setSentimentAnalysisList([]);
+        setMovieUrl("");
         setLoading(true);
         setSubmit(true);
         setProcessed(0);
-    };
-    const handleKeyDown = (event) => {
-        console.log(event.key);
-        if (event.key === "Enter") {
-            handleSubmit();
-        }
+        setSentimentAnalysisList([]);
+        setReviewsAggregate("");
     };
     return (
         <>
@@ -166,7 +182,12 @@ function Input({
                         justifyContent: "center",
                     }}
                 >
-                    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleSubmit();
+                        }}
+                    >
                         <label htmlFor="movie_name" className="sr-only">
                             Movie Name
                         </label>
@@ -187,7 +208,6 @@ function Input({
                             onClick={() => {
                                 handleSubmit();
                             }}
-                            onKeyDown={handleKeyDown}
                         >
                             Go!
                         </button>

@@ -1,11 +1,10 @@
-import { useState } from "react";
-
 function Summarization({
     searchMessage,
     movieUrl,
     fetchingReviews,
-    summarizationLoading,
+    analyzingReviews,
     summarizationMessage,
+    loading,
 }) {
     return (
         <>
@@ -13,29 +12,23 @@ function Summarization({
                 <p style={{ fontWeight: "bold" }}>Summary</p>
                 <div className="divider"></div>
                 <p id="result" style={{ whiteSpace: "pre-line" }}>
-                    {summarizationMessage=="" && (
-                        <>{searchMessage != "" && searchMessage}
-                    {movieUrl != "" && (
-                            <>
-                            <br/>
-                            Movie URL Found: 
+                    {searchMessage != "" && searchMessage}
+                    {movieUrl != "" && loading && (
+                        <>
+                            <br />
+                            {"Movie URL Found: "}
                             <a
                                 href={`${movieUrl}/reviews?type=top_critics`}
                                 target="_blank"
                             >
-                                { `${movieUrl}/reviews?type=top_critics`}
+                                {`${movieUrl}/reviews?type=top_critics`}
                             </a>
-                            </>
+                        </>
                     )}
-                    {fetchingReviews && (
-                        "\nFetching Movie Reviews...\nAnalyzing Movie Reviews..."
-                    )}
-                    {/* {summarizationLoading && (
+                    {fetchingReviews && "\nFetching Movie Reviews..."}
+                    {analyzingReviews && "\nAnalyzing Movie Reviews..."}
 
-                    )} */}</>)}
-                    {summarizationMessage != "" && (
-                        summarizationMessage
-                    )}
+                    {!loading && summarizationMessage}
                 </p>
             </div>
             <br />

@@ -1,12 +1,14 @@
-import { useState } from "react";
 import "./css/style.css";
 
-function SentimentAnalysis({ sentimentAnalysisList, reviewsList }) {
+function SentimentAnalysis({ sentimentAnalysisList, reviewsList, movieUrl }) {
     return (
         <>
             <div className="box" id="reviews-parent-div">
                 <p style={{ fontWeight: "bold" }}>
-                    <a id="movieurl" href="">
+                    <a
+                        id="movieurl"
+                        href={movieUrl + "/reviews?type=top_critics"}
+                    >
                         Reviews
                     </a>{" "}
                     Sentiment Analysis
@@ -14,7 +16,6 @@ function SentimentAnalysis({ sentimentAnalysisList, reviewsList }) {
                 <div className="divider"></div>
                 <div className="grid" id="reviews-boxes-div">
                     {sentimentAnalysisList.map((review, i) => {
-
                         const label = review?.label;
                         const score = review?.score;
                         const boxClassNamePrefix =

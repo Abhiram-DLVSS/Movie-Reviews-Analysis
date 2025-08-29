@@ -12,9 +12,9 @@ function App() {
     const [searchMessage, setSearchMessage] = useState("");
     const [movieUrl, setMovieUrl] = useState("");
     const [fetchingReviews, setFetchingReviews] = useState(false);
-    const [summarizationLoading, setSummarizationLoading] = useState(false);
-
+    const [analyzingReviews, setAnalyzingReviews] = useState(false);
     const [reviewsList, setReviewsList] = useState([]);
+    
     return (
         <>
             <nav className="navbar navbar-light bg-light">
@@ -38,22 +38,16 @@ function App() {
                 <Input
                     loading={loading}
                     setLoading={setLoading}
-                    submit={submit}
                     setSubmit={setSubmit}
-                    summarizationMessage={summarizationMessage}
                     setSummarizationMessage={setSummarizationMessage}
-                    sentimentAnalysisList={sentimentAnalysisList}
                     setSentimentAnalysisList={setSentimentAnalysisList}
                     reviewsList={reviewsList}
                     setReviewsList={setReviewsList}
                     movieUrl={movieUrl}
                     setMovieUrl={setMovieUrl}
-                    searchMessage={searchMessage}
                     setSearchMessage={setSearchMessage}
-                    fetchingReviews={fetchingReviews}
                     setFetchingReviews={setFetchingReviews}
-                    summarizationLoading={summarizationLoading}
-                    setSummarizationLoading={setSummarizationLoading}
+                    setAnalyzingReviews={setAnalyzingReviews}
                 />
                 {submit && (
                     <>
@@ -61,14 +55,16 @@ function App() {
                             searchMessage={searchMessage}
                             movieUrl={movieUrl}
                             fetchingReviews={fetchingReviews}
-                            summarizationLoading={summarizationLoading}
+                            analyzingReviews={analyzingReviews}
                             summarizationMessage={summarizationMessage}
+                            loading={loading}
                         />
 
                         {sentimentAnalysisList.length > 0 && (
                             <SentimentAnalysis
                                 sentimentAnalysisList={sentimentAnalysisList}
                                 reviewsList={reviewsList}
+                                movieUrl={movieUrl}
                             />
                         )}
                     </>
