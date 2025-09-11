@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>moviereviewsanalysis</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>moviereviewsanalysis</name>
 	<description>A web application that provides summaries and sentiment analysis of movie reviews for any given movie using T5 and MPNet models.</description>
 	<url/>

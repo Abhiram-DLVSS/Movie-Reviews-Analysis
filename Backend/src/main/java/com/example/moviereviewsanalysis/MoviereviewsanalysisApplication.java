@@ -73,7 +73,7 @@ public class MoviereviewsanalysisApplication {
 
     @GetMapping("/getReviews")
     public MovieReviews getReviews(@RequestParam("movieUrl") String movieUrl) {
-        WebDriverManager.chromedriver().setup();
+        WebDriverManager.chromedriver().driverVersion(keyConfig.chromerDriverVersion).setup();
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
