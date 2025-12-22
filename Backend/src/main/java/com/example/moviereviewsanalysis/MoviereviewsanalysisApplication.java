@@ -84,7 +84,7 @@ public class MoviereviewsanalysisApplication {
         WebDriver driver = new ChromeDriver(options);
         try {
             driver.get(movieUrl+"/reviews?type=top_critics");
-            List<WebElement> reviews = driver.findElements(By.className("review-text"));
+            List<WebElement> reviews = driver.findElements(By.cssSelector("review-card drawer-more span"));
 
             List<String> reviewsList = new ArrayList<String>();
             String reviewsAggregate = "";
